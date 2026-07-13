@@ -12,7 +12,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Utils\ApiResponse;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -44,7 +44,13 @@ class AuthController extends Controller
         );
     }
 
-    // public function logout(): JsonResponse {
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
 
-    // }
+        return ApiResponse::success(
+            message: 'Logged out successfully',
+            status: 200
+        );
+    }
 }
