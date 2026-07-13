@@ -4,9 +4,9 @@ namespace App\Actions\Auth;
 
 use App\DTOs\Auth\AuthResult;
 use App\DTOs\Auth\LoginUserData;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 final class LoginUserAction
 {
@@ -21,9 +21,11 @@ final class LoginUserAction
 
         $user = Auth::user();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        if (!$user->is_active) {
+            throw new AuthorizationException("User is inactive.");
+        }
 
-        Log::info("\nLogin User", compact('user', 'token'));
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return new AuthResult(user: $user, token: $token);
     }

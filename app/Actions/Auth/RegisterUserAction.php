@@ -15,14 +15,6 @@ final class RegisterUserAction
     {
         return DB::transaction(function () use ($data) {
 
-            // $user = new User([
-            //     'name' => $data->name,
-            //     'email' => $data->email,
-            //     'phone' => $data->phone,
-            //     'password' => $data->password,
-            //     'is_active' => true,
-            // ]);
-
             $user = User::create([
                 'name' => $data->name,
                 'email' => $data->email,
