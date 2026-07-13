@@ -4,22 +4,20 @@ namespace App\Actions\Auth;
 
 use App\DTOs\Auth\AuthResult;
 use App\DTOs\Auth\LoginUserData;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 final class LoginUserAction
 {
     public function __invoke(LoginUserData $data): AuthResult
     {
-        if (!Auth::attempt([
-            'email' => $data->email,
-            'password' => $data->password
-        ])) {
+        $user = User::where('email', $data->email)->first();
+
+        if (!$user || !Hash::check($data->password, $user->password)) {
             throw new AuthenticationException("Invalid credentials.");
         }
-
-        $user = Auth::user();
 
         if (!$user->is_active) {
             throw new AuthorizationException("User is inactive.");
