@@ -9,3 +9,10 @@ enum RoleEnum: string
     case TENANT = 'Tenant';
     case CONTRACTOR = 'Contractor';
 }
+
+enum PublicRoleEnums: string
+{
+    case MANAGER = 'Manager';
+    case TENANT = 'Tenant';
+    case CONTRACTOR = 'Contractor';
+}

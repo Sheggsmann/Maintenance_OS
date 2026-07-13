@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -30,6 +29,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    // Force the model to use the sanctum guard
+    protected string $guard_name = 'sanctum';
+
     /**
      * Get the attributes that should be cast.
      *
@@ -41,5 +43,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Override the Spatie default guard resolution logic
+     */
+    protected function getDefaultGuardName(): string
+    {
+        return $this->guard_name;
     }
 }
