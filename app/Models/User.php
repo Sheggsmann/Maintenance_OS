@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->guard_name;
     }
+
+    public function managedProperties()
+    {
+        return $this->hasMany(Property::class, 'manager_id');
+    }
 }
