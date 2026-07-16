@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Property::class, 'manager_id');
     }
+
+    public function rentedUnit()
+    {
+        return $this->hasOne(Unit::class, 'tenant_id');
+    }
 }

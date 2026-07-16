@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PropertyController;
+use App\Http\Controllers\Api\V1\UnitController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -14,5 +15,8 @@ Route::prefix("v1")->group(function () {
 
         // Property Routes
         Route::apiResource('properties', PropertyController::class);
+
+        // Unit Routes
+        Route::apiResource('units', UnitController::class);
     });
 });

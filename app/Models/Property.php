@@ -31,8 +31,8 @@ class Property extends Model
         return $this->belongsTo(User::class, 'manager_id');
     }
 
-    // public function units()
-    // {
-    //     return $this->hasMany(Unit::class);
-    // }
+    public function units()
+    {
+        return $this->hasMany(Unit::class);
+    }
 }
