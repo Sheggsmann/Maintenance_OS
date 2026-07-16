@@ -5,15 +5,19 @@ namespace App\Policies;
 use App\Enums\RoleEnum;
 use App\Models\Property;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class PropertyPolicy
 {
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
+        if ($user->hasRole(RoleEnum::ADMIN->value) || $user->hasRole(RoleEnum::MANAGER->value)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -26,7 +30,11 @@ class PropertyPolicy
             return true;
         }
 
-        return $property->manager_id === $user->id;
+        if ($user->hasRole(RoleEnum::MANAGER->value)) {
+            return $property->manager_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -42,7 +50,11 @@ class PropertyPolicy
      */
     public function update(User $user, Property $property): bool
     {
-        return false;
+        if ($user->hasRole(RoleEnum::ADMIN->value)) {
+            return true;
+        }
+
+        return $user->hasRole(RoleEnum::MANAGER->value) && $property->manager_id === $user->id;
     }
 
     /**
@@ -50,7 +62,11 @@ class PropertyPolicy
      */
     public function delete(User $user, Property $property): bool
     {
-        return false;
+        if ($user->hasRole(RoleEnum::ADMIN->value)) {
+            return true;
+        }
+
+        return $user->hasRole(RoleEnum::MANAGER->value) && $property->manager_id === $user->id;
     }
 
     /**

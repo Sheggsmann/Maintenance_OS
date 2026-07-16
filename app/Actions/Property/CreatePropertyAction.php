@@ -5,7 +5,7 @@ namespace App\Actions\Property;
 use App\DTOs\Property\CreatePropertyData;
 use App\Models\Property;
 
-final class CreateProperty
+final class CreatePropertyAction
 {
     public function __invoke(CreatePropertyData $data): Property
     {
