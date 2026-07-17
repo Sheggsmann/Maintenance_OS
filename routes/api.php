@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MaintenanceRequestController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\UnitController;
 use Illuminate\Support\Facades\Route;
@@ -18,5 +19,8 @@ Route::prefix("v1")->group(function () {
 
         // Unit Routes
         Route::apiResource('units', UnitController::class);
+
+        // Maintenance Routes
+        Route::apiResource('maintenance-requests', MaintenanceRequestController::class);
     });
 });

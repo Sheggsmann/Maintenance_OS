@@ -62,4 +62,20 @@ class User extends Authenticatable
     {
         return $this->hasOne(Unit::class, 'tenant_id');
     }
+
+    public function reportedMaintenanceRequests()
+    {
+        return $this->hasMany(
+            MaintenanceRequest::class,
+            'tenant_id'
+        );
+    }
+
+    public function assignedMaintenanceRequests()
+    {
+        return $this->hasMany(
+            MaintenanceRequest::class,
+            'assigned_to'
+        );
+    }
 }
