@@ -30,6 +30,6 @@ it('lets admin view any unit', function () {
 
 it('lets manager view units in their property', function () {});
 
-it("prevents manager from view unit in unowned property", function () {});
+it("prevents manager from viewing unit in unowned property", function () {});
 
 it("prevents guest from viewing unit", function () {});
