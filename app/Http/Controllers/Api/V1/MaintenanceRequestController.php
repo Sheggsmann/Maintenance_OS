@@ -45,6 +45,8 @@ class MaintenanceRequestController extends Controller
         CreateMaintenanceRequestRequest $request,
         CreateMaintenanceRequestAction $action,
     ) {
+        // dd(['all' => $request->all(), 'files' => $request->allFiles()]);
+
         $maintenanceRequest = $action(
             CreateMaintenanceRequestData::from($request)
         );

@@ -43,6 +43,14 @@ class CreateMaintenanceRequestRequest extends FormRequest
                 'required',
                 Rule::enum(MaintenanceCategoryEnum::class),
             ],
+
+            'media' => ['nullable', 'array'],
+
+            'media.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
         ];
     }
 }

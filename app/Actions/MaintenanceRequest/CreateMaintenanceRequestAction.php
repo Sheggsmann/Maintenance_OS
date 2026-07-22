@@ -2,6 +2,7 @@
 
 namespace App\Actions\MaintenanceRequest;
 
+use App\Actions\Media\UploadMediaAction;
 use App\DTOs\MaintenanceRequest\CreateMaintenanceRequestData;
 use App\Enums\MaintenancePriorityEnum;
 use App\Enums\MaintenanceStatusEnum;
@@ -10,10 +11,15 @@ use App\Enums\UnitStatusEnum;
 use App\Models\MaintenanceRequest;
 use App\Models\Unit;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 final class CreateMaintenanceRequestAction
 {
+    public function __construct(
+        protected UploadMediaAction $uploadMediaAction
+    ) {}
+
     public function __invoke(
         CreateMaintenanceRequestData $data,
     ): MaintenanceRequest {
@@ -45,18 +51,26 @@ final class CreateMaintenanceRequestAction
             ['You can only report maintenance issues for your own unit']]);
         }
 
-        return MaintenanceRequest::create([
-            'property_id' => $unit->property_id,
-            'unit_id' => $unit->id,
-            'tenant_id' => Auth::id(),
-            'assigned_to' => null,
-            'title' => $data->title,
-            'description' => $data->description,
-            'priority' => $data->priority
-                ?? MaintenancePriorityEnum::MEDIUM,
-            'status' => MaintenanceStatusEnum::OPEN,
-            'category' => $data->category,
-            'reported_at' => now(),
-        ]);
+        return DB::transaction(function () use ($data, $unit) {
+            $maintenanceRequest = MaintenanceRequest::create([
+                'property_id' => $unit->property_id,
+                'unit_id' => $unit->id,
+                'tenant_id' => Auth::id(),
+                'assigned_to' => null,
+                'title' => $data->title,
+                'description' => $data->description,
+                'priority' => $data->priority
+                    ?? MaintenancePriorityEnum::MEDIUM,
+                'status' => MaintenanceStatusEnum::OPEN,
+                'category' => $data->category,
+                'reported_at' => now(),
+            ]);
+
+            foreach ($data->media as $file) {
+                ($this->uploadMediaAction)($maintenanceRequest, $file);
+            }
+
+            return $maintenanceRequest->load('media');
+        });
     }
 }

@@ -8,6 +8,7 @@ use App\Enums\MaintenanceStatusEnum;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -56,5 +57,13 @@ class MaintenanceRequest extends Model
     public function contractor()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function media(): MorphMany
+    {
+        return $this->morphMany(
+            Media::class,
+            'mediable'
+        );
     }
 }

@@ -8,6 +8,8 @@ use App\Models\Property;
 use App\Models\Unit;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
@@ -24,6 +26,9 @@ it('lets Admin create a maintenance request', function () {
         'status' => UnitStatusEnum::OCCUPIED
     ]);
 
+    Storage::fake('public');
+    $file = UploadedFile::fake()->image('sink.jpg');
+
     $response = $this
         ->actingAs($admin)
         ->postJson("/api/v1/maintenance-requests", [
@@ -32,6 +37,7 @@ it('lets Admin create a maintenance request', function () {
             'description' => 'Water leaking under sink',
             'priority' => MaintenancePriorityEnum::HIGH->value,
             'category' => MaintenanceCategoryEnum::PLUMBING->value,
+            'media' => [$file]
         ]);
 
     $response
