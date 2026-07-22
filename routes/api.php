@@ -22,5 +22,26 @@ Route::prefix("v1")->group(function () {
 
         // Maintenance Routes
         Route::apiResource('maintenance-requests', MaintenanceRequestController::class);
+
+        Route::post(
+            'maintenance-requests/{maintenanceRequest}/assign',
+            [MaintenanceRequestController::class, 'assign']
+        )
+            ->name('maintenance-requests.assign');
+
+        Route::post(
+            'maintenance-requests/{maintenanceRequest}/start',
+            [MaintenanceRequestController::class, 'start']
+        )->name('maintenance-requests.start');
+
+        Route::post(
+            'maintenance-requests/{maintenanceRequest}/complete',
+            [MaintenanceRequestController::class, 'complete']
+        )->name('maintenance-requests.complete');
+
+        Route::post(
+            'maintenance-requests/{maintenanceRequest}/cancel',
+            [MaintenanceRequestController::class, 'cancel']
+        )->name('maintenance-requests.cancel');
     });
 });
