@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\MaintenanceRequestController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\UnitController;
+use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -22,6 +23,12 @@ Route::prefix("v1")->group(function () {
 
         // Maintenance Routes
         Route::apiResource('maintenance-requests', MaintenanceRequestController::class);
+
+        Route::post(
+            'maintenance-requests/{maintenanceRequest}/work-order',
+            [WorkOrderController::class, 'generate']
+        )
+            ->name('maintenance-requests.work-order');
 
         Route::post(
             'maintenance-requests/{maintenanceRequest}/assign',

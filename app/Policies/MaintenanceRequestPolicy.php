@@ -72,6 +72,20 @@ class MaintenanceRequestPolicy
         return false;
     }
 
+    /**
+     * Determine whether the user can generate a work order.
+     */
+    public function generate(
+        User $user,
+        MaintenanceRequest $maintenanceRequest
+    ): bool {
+
+        return $user->hasAnyRole([
+            RoleEnum::ADMIN->value,
+            RoleEnum::MANAGER->value,
+        ]);
+    }
+
 
     /**
      * Determine whether the user can assign a contractor the model.

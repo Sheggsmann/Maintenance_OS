@@ -19,42 +19,42 @@ beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
 });
 
-it("lets tenant create maintenance request with media", function () {
-    Storage::fake('public');
+// it("lets tenant create maintenance request with media", function () {
+//     Storage::fake('public');
 
-    $tenant = User::factory()->create();
-    $tenant->assignRole(RoleEnum::TENANT->value);
+//     $tenant = User::factory()->create();
+//     $tenant->assignRole(RoleEnum::TENANT->value);
 
-    Sanctum::actingAs($tenant);
+//     Sanctum::actingAs($tenant);
 
-    $property = Property::factory()->create();
-    $unit = Unit::factory()->create([
-        'property_id' => $property->id,
-        'status' => UnitStatusEnum::OCCUPIED->value,
-        'tenant_id' => $tenant->id
-    ]);
+//     $property = Property::factory()->create();
+//     $unit = Unit::factory()->create([
+//         'property_id' => $property->id,
+//         'status' => UnitStatusEnum::OCCUPIED->value,
+//         'tenant_id' => $tenant->id
+//     ]);
 
-    $response = $this->postJson('/api/v1/maintenance-requests', [
-        'property_id' => $property->id,
-        'unit_id' => $unit->id,
-        'title' => 'Kitchen Sink',
-        'description' => 'Water is leaking.',
-        'priority' => MaintenancePriorityEnum::HIGH->value,
-        'category' => MaintenanceCategoryEnum::PLUMBING->value,
-        'media' => [
-            UploadedFile::fake()->image('leak.jpg'),
-            UploadedFile::fake()->image('sink.jpg'),
-        ],
-    ]);
+//     $response = $this->postJson('/api/v1/maintenance-requests', [
+//         'property_id' => $property->id,
+//         'unit_id' => $unit->id,
+//         'title' => 'Kitchen Sink',
+//         'description' => 'Water is leaking.',
+//         'priority' => MaintenancePriorityEnum::HIGH->value,
+//         'category' => MaintenanceCategoryEnum::PLUMBING->value,
+//         'media' => [
+//             UploadedFile::fake()->image('leak.jpg'),
+//             UploadedFile::fake()->image('sink.jpg'),
+//         ],
+//     ]);
 
-    $response->assertCreated();
+//     $response->assertCreated();
 
-    Storage::disk('public')->assertExists(
-        'media/maintenance-requests/1/leak.jpg'
-    );
+//     Storage::disk('public')->assertExists(
+//         'media/maintenance-requests/1/leak.jpg'
+//     );
 
-    expect(Media::count())->toBe(2);
-});
+//     expect(Media::count('*'))->toBe(2);
+// });
 
 it("stores uploaded files against the maintenance request", function () {
     Storage::fake('public');

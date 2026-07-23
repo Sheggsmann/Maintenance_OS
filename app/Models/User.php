@@ -84,4 +84,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Media::class, 'uploaded_by');
     }
+
+    public function assignedWorkOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class, 'assigned_contractor_id');
+    }
+
+    public function createdWorkOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class, 'created_by');
+    }
 }
