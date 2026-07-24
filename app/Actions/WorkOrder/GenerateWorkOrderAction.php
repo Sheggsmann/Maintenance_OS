@@ -18,13 +18,12 @@ class GenerateWorkOrderAction
         GenerateWorkOrderData $data,
         User $user
     ): WorkOrder {
-
-        if (
-            $maintenanceRequest->status !==
-            MaintenanceStatusEnum::OPEN
-        ) {
+        if (! in_array($maintenanceRequest->status, [
+            MaintenanceStatusEnum::OPEN,
+            MaintenanceStatusEnum::APPROVED,
+        ], true)) {
             throw new ConflictHttpException(
-                'Only OPEN maintenance requests can generate work orders.'
+                'Only OPEN or APPROVED maintenance requests can generate work orders.'
             );
         }
 
@@ -40,6 +39,7 @@ class GenerateWorkOrderAction
             $user
         ) {
 
+            // Work Order should be approved
             $workOrder =  WorkOrder::create([
                 'maintenance_request_id' => $maintenanceRequest->id,
                 'created_by' => $user->id,
@@ -48,7 +48,7 @@ class GenerateWorkOrderAction
                 'estimated_cost' => $data->estimatedCost,
                 'estimated_hours' => $data->estimatedHours,
                 'scheduled_for' => $data->scheduledFor,
-                'status' => WorkOrderStatusEnum::PENDING->value,
+                'status' => WorkOrderStatusEnum::APPROVED->value,
             ]);
 
             $workOrder->update([
@@ -58,6 +58,8 @@ class GenerateWorkOrderAction
                     $workOrder->id
                 ),
             ]);
+
+            return $workOrder->fresh();
         });
     }
 

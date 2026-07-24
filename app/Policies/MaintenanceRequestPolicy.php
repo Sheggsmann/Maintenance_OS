@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\MaintenanceStatusEnum;
 use App\Enums\RoleEnum;
 use App\Models\MaintenanceRequest;
 use App\Models\User;
@@ -70,6 +71,20 @@ class MaintenanceRequestPolicy
         }
 
         return false;
+    }
+
+    /**
+     * Determine whether the user can approve a work order.
+     */
+    public function approve(
+        User $user,
+        MaintenanceRequest $maintenanceRequest
+    ): bool {
+        return $user->hasAnyRole([
+            RoleEnum::ADMIN->value,
+            RoleEnum::MANAGER->value,
+        ])
+            && $maintenanceRequest->status === MaintenanceStatusEnum::OPEN;
     }
 
     /**

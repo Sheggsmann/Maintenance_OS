@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\WorkOrderStatusEnum;
+use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
@@ -86,5 +89,94 @@ class WorkOrder extends Model
             Media::class,
             'mediable'
         );
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(
+            ApprovalHistory::class
+        );
+    }
+
+    public function dispatches(): HasMany
+    {
+        return $this->hasMany(
+            ContractorDispatch::class
+        );
+    }
+
+    public function approve(): void
+    {
+        if ($this->status !== WorkOrderStatusEnum::PENDING->value) {
+            throw new DomainException(
+                'Only pending work orders can be approved.'
+            );
+        }
+
+        $this->update([
+            'status' => WorkOrderStatusEnum::APPROVED->value,
+            'approved_at' => now(),
+        ]);
+    }
+
+    public function dispatch(): void
+    {
+        if ($this->status !== WorkOrderStatusEnum::APPROVED->value) {
+            throw new DomainException(
+                'Only approved work orders can be dispatched.'
+            );
+        }
+
+        $this->update([
+            "status" => WorkOrderStatusEnum::DISPATCHED->value,
+            "dispatched_at" => now(),
+        ]);
+    }
+
+    public function accepted(): void
+    {
+        $this->update([
+            'status' => WorkOrderStatusEnum::ACCEPTED->value,
+        ]);
+    }
+
+    public function start(): void
+    {
+        if ($this->status !== WorkOrderStatusEnum::DISPATCHED->value) {
+            throw new DomainException('Only dispatched work orders can start');
+        }
+
+        $this->update([
+            'status' => WorkOrderStatusEnum::IN_PROGRESS->value,
+            'started_at' => now(),
+        ]);
+    }
+
+    public function complete(): void
+    {
+        if ($this->status !== WorkOrderStatusEnum::IN_PROGRESS->value) {
+            throw new DomainException(
+                'Only work orders in progress can be completed.'
+            );
+        }
+
+        $this->update([
+            'status' => WorkOrderStatusEnum::COMPLETED->value,
+            'completed_at' => now(),
+        ]);
+    }
+
+    public function cancel(): void
+    {
+        if ($this->status === WorkOrderStatusEnum::COMPLETED->value) {
+            throw new DomainException(
+                'Completed work orders cannot be cancelled.'
+            );
+        }
+
+        $this->update([
+            'status' => WorkOrderStatusEnum::CANCELLED->value,
+            'cancelled_at' => now(),
+        ]);
     }
 }

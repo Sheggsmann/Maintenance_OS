@@ -8,6 +8,7 @@ use App\Enums\MaintenanceStatusEnum;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,6 +39,7 @@ class MaintenanceRequest extends Model
         'reported_at' => 'datetime',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function property()
@@ -71,5 +73,19 @@ class MaintenanceRequest extends Model
     public function workOrder(): HasOne
     {
         return $this->hasOne(WorkOrder::class);
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function approve(User $manager): void
+    {
+        $this->update([
+            'status' => MaintenanceStatusEnum::APPROVED,
+            'approved_by' => $manager->id,
+            'approved_at' => now()
+        ]);
     }
 }
