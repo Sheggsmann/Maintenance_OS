@@ -14,6 +14,8 @@ class ContractorPayloadBuilder
             ->maintenanceRequest;
 
         return [
+            'maintenance_work_order_id' => $workOrder->id,
+
             'reference' => $workOrder->reference,
 
             'maintenance_request_reference' => $request->reference,

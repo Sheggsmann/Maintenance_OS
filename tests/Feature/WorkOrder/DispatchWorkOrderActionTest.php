@@ -57,7 +57,7 @@ it('updates work order status after successful dispatch', function () {
     app(DispatchWorkOrderAction::class)($workOrder);
 
     expect($workOrder->fresh()->status)
-        ->toBe(WorkOrderStatusEnum::DISPATCHED->value);
+        ->toBe(WorkOrderStatusEnum::DISPATCHED);
 });
 
 it('stores dispatch error when contractor api fails', function () {
@@ -73,6 +73,17 @@ it('stores dispatch error when contractor api fails', function () {
 
     $this->assertDatabaseHas('contractor_dispatches', [
         'work_order_id' => $workOrder->id,
-        'status' => DispatchStatusEnum::FAILED->value,
+        'status' => DispatchStatusEnum::FAILED,
     ]);
 });
+
+// it('does not dispatch an already dispatched work order', function () {
+//     Http::fake();
+
+//     $workOrder = WorkOrder::factory()->create([
+//         'status' => WorkOrderStatusEnum::DISPATCHED->value,
+//     ]);
+
+//     app(DispatchWorkOrderAction::class)($workOrder);
+//     Http::assertNothingSent();
+// });

@@ -10,7 +10,7 @@ class HmacSignatureService
     ): string {
         return hash_hmac(
             'sha256',
-            $timestamp . $payload,
+            $timestamp . '.' . $payload,
             config('contractor.webhook_secret')
         );
     }

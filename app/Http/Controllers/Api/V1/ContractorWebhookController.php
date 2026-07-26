@@ -1,66 +1,70 @@
 <?php
 
+
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\WorkOrder\UpdateWorkOrderStatusFromWebhookAction;
+use App\DTOs\Webhook\ContractorStatusWebhookData;
 use App\DTOs\Webhook\ContractorWebhookData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ContractorWebhookRequest;
-use App\Jobs\Contractor\ProcessContractorWebhookJob;
+use App\Http\Requests\Webhook\ContractorStatusWebhookRequest;
 use App\Services\Webhook\HmacSignatureService;
-use App\Services\Webhook\IdempotencyService;
-use App\Utils\ApiResponse;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ContractorWebhookController extends Controller
 {
+    public function __construct(
+        private readonly HmacSignatureService $signatureService,
+    ) {}
+
     public function __invoke(
-        ContractorWebhookRequest $request,
-        HmacSignatureService $signature,
-        IdempotencyService $idempotency
-    ): JsonResponse {
-
-        $payload = $request->validated();
-
-        $body = json_encode($payload);
-
-        if (! $signature->verify(
-            $body,
-            $request->header('X-Timestamp'),
-            $request->header('X-Signature')
-        )) {
-            return ApiResponse::error(
-                message: 'Invalid signature',
-                status: 401
-            );
-        }
+        ContractorStatusWebhookRequest $request,
+        UpdateWorkOrderStatusFromWebhookAction $action,
+    ) {
 
         if (
-            $idempotency->alreadyProcessed(
-                $payload['event_id']
-            )
+            $request->header('X-API-Key')
+            !== config('contractor.api_key')
         ) {
-            return ApiResponse::error(
-                message: "Webhook already processed",
-                status: 401
+            throw new AccessDeniedHttpException(
+                'Invalid API key.'
             );
         }
 
-        $idempotency->record($payload);
+        $payload = $request->getContent();
 
-        ProcessContractorWebhookJob::dispatch(
+        $timestamp = $request->header('X-Timestamp');
+
+        $signature = $request->header('X-Signature');
+
+        if (! $this->signatureService->verify(
+            payload: $payload,
+            timestamp: $timestamp,
+            signature: $signature,
+
+        )) {
+
+            throw new AccessDeniedHttpException(
+                'Invalid webhook signature.'
+            );
+        }
+
+        $action->execute(
             new ContractorWebhookData(
-                eventId: $payload['event_id'],
-                reference: $payload['reference'],
-                status: $payload['status'],
-                occurredAt: $payload['occurred_at'],
-                payload: $payload,
+                maintenanceWorkOrderId: $request->integer('maintenance_work_order_id'),
+                status: $request->enum(
+                    'status',
+                    \App\Enums\WorkOrderStatusEnum::class
+                ),
+
             )
+
         );
 
-
-        return ApiResponse::success(
-            status: 202,
-            message: "Webhook accepted"
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Webhook processed successfully.',
+        ]);
     }
 }

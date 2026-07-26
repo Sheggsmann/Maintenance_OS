@@ -59,6 +59,8 @@ class WorkOrder extends Model
             'completed_at' => 'datetime',
 
             'cancelled_at' => 'datetime',
+
+            'status' => WorkOrderStatusEnum::class,
         ];
     }
 
@@ -107,7 +109,7 @@ class WorkOrder extends Model
 
     public function approve(): void
     {
-        if ($this->status !== WorkOrderStatusEnum::PENDING->value) {
+        if ($this->status !== WorkOrderStatusEnum::PENDING) {
             throw new DomainException(
                 'Only pending work orders can be approved.'
             );
@@ -121,7 +123,7 @@ class WorkOrder extends Model
 
     public function dispatch(): void
     {
-        if ($this->status !== WorkOrderStatusEnum::APPROVED->value) {
+        if ($this->status !== WorkOrderStatusEnum::APPROVED) {
             throw new DomainException(
                 'Only approved work orders can be dispatched.'
             );
@@ -142,7 +144,7 @@ class WorkOrder extends Model
 
     public function start(): void
     {
-        if ($this->status !== WorkOrderStatusEnum::DISPATCHED->value) {
+        if ($this->status !== WorkOrderStatusEnum::DISPATCHED) {
             throw new DomainException('Only dispatched work orders can start');
         }
 
@@ -154,7 +156,7 @@ class WorkOrder extends Model
 
     public function complete(): void
     {
-        if ($this->status !== WorkOrderStatusEnum::IN_PROGRESS->value) {
+        if ($this->status !== WorkOrderStatusEnum::IN_PROGRESS) {
             throw new DomainException(
                 'Only work orders in progress can be completed.'
             );
@@ -168,7 +170,7 @@ class WorkOrder extends Model
 
     public function cancel(): void
     {
-        if ($this->status === WorkOrderStatusEnum::COMPLETED->value) {
+        if ($this->status === WorkOrderStatusEnum::COMPLETED) {
             throw new DomainException(
                 'Completed work orders cannot be cancelled.'
             );
