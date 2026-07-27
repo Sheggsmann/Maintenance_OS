@@ -3,6 +3,8 @@
 namespace App\Actions\WorkOrder;
 
 use App\DTOs\Webhook\ContractorWebhookData;
+use App\Enums\WorkOrderStatusEnum;
+use App\Events\WorkOrderCompleted;
 use App\Models\WorkOrder;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -23,27 +25,25 @@ class UpdateWorkOrderStatusFromWebhookAction
              * Prevent invalid backwards transitions
              */
 
-            if (
-                $workOrder->status === $data->status
-            ) {
+            if ($workOrder->status === $data->status) {
                 return $workOrder;
             }
 
-            if (
-                $workOrder->status->value === 'completed'
-            ) {
+            if ($workOrder->status->value === 'completed') {
                 throw new ConflictHttpException(
                     'Completed work orders cannot change status.'
                 );
             }
 
-            $workOrder->update([
+            $workOrder->update(['status' => $data->status]);
 
-                'status' => $data->status,
+            $workOrder->fresh();
 
-            ]);
+            if ($workOrder->status === WorkOrderStatusEnum::COMPLETED) {
+                WorkOrderCompleted::dispatch($workOrder);
+            }
 
-            return $workOrder->fresh();
+            return $workOrder;
         });
     }
 }

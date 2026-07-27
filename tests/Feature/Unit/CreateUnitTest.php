@@ -153,5 +153,3 @@ it("prevents duplicate unit number inside same property", function () {
         ->assertUnprocessable()
         ->assertJsonStructure(['errors']);
 });
-
-it("prevents guest from creating units", function () {});

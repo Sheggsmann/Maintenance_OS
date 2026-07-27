@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\WorkOrderCompleted;
+use App\Listeners\CreateBillingRecord;
+use App\Listeners\GenerateCompletionReport;
+use App\Listeners\NotifyPropertyManager;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +14,14 @@ use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
+    protected $listen = [
+        WorkOrderCompleted::class => [
+            GenerateCompletionReport::class,
+            NotifyPropertyManager::class,
+            CreateBillingRecord::class
+        ]
+    ];
+
     /**
      * Register any application services.
      */
@@ -37,14 +49,15 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
+                ? Password::min(12)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+                : null,
         );
     }
 }

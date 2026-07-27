@@ -39,6 +39,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'completed_at',
 
     'cancelled_at',
+
+    'completion_report_path'
 ])]
 class WorkOrder extends Model
 {
