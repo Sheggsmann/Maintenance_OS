@@ -27,6 +27,11 @@ Route::prefix("v1")->group(function () {
         // Unit Routes
         Route::apiResource('units', UnitController::class);
 
+        Route::post(
+            'units/{unit}/assign-tenant',
+            [UnitController::class, 'assignTenant']
+        )->name('units.assign-tenant');
+
         // Maintenance Routes
         Route::apiResource('maintenance-requests', MaintenanceRequestController::class);
 

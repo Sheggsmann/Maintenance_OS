@@ -59,6 +59,15 @@ class UnitPolicy
             && $unit->property->manager_id === $user->id;
     }
 
+
+    /**
+     * Determine whether the user can assign a tenant.
+     */
+    public function assignTenant(User $user, Unit $unit)
+    {
+        return $user->hasRole(RoleEnum::MANAGER->value);
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Unit\AssignTenantToUnitAction;
 use App\Actions\Unit\CreateUnitAction;
 use App\Actions\Unit\ListUnitsAction;
 use App\Actions\Unit\ShowUnitAction;
+use App\DTOs\Units\AssignTenantToUnitData;
 use App\DTOs\Units\CreateUnitData;
 use App\DTOs\Units\UnitFilters;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Unit\AssignTenantToUnitRequest;
 use App\Http\Requests\Unit\CreateUnitRequest;
 use App\Http\Requests\Unit\ListUnitsRequest;
 use App\Http\Resources\UnitResource;
@@ -43,6 +46,21 @@ class UnitController extends Controller
 
         return ApiResponse::success(
             data: new UnitResource($action($unit))
+        );
+    }
+
+    public function assignTenant(
+        AssignTenantToUnitRequest $request,
+        Unit $unit,
+        AssignTenantToUnitAction $action
+    ) {
+        $this->authorize('assignTenant', $unit);
+
+        $unit = $action->execute($unit, AssignTenantToUnitData::from(['tenantId' => $request->integer('tenant_id')]));
+
+        return ApiResponse::success(
+            data: $unit->load('tenant'),
+            message: 'Tenant assigned successfully',
         );
     }
 
