@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ContractorWebhookController;
 use App\Http\Controllers\Api\V1\MaintenanceRequestController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\UnitController;
+use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -42,5 +43,11 @@ Route::prefix("v1")->group(function () {
         )
             ->middleware('can:approve,maintenanceRequest')
             ->name('maintenance-requests.approve');
+
+        // Work Orders Routes
+        Route::get(
+            'work-orders',
+            [WorkOrderController::class, 'index']
+        );
     });
 });

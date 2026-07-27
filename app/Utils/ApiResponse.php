@@ -11,6 +11,17 @@ final class ApiResponse
         string $message = 'Success',
         int $status = 200
     ): JsonResponse {
+        if ($data instanceof \Illuminate\Http\Resources\Json\ResourceCollection) {
+            $response = $data->response()->getData(true);
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $response['data'],
+                'links' => $response['links'] ?? null,
+                'meta' => $response['meta'] ?? null
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message,
